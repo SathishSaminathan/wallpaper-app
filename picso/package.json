@@ -1,5 +1,5 @@
 {
-  "name": "app",
+  "name": "picso",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -9,8 +9,10 @@
     "test": "jest"
   },
   "dependencies": {
+    "axios": "^0.19.0",
     "react": "16.9.0",
-    "react-native": "0.61.2"
+    "react-native": "0.61.2",
+    "react-native-vector-icons": "^6.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.5.0",
@@ -23,5 +25,10 @@
   },
   "jest": {
     "preset": "react-native"
+  },
+  "rnpm": {
+    "assets": [
+      "./app/assets/fonts/"
+    ]
   }
 }

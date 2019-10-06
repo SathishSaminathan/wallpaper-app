@@ -1,18 +1,21 @@
-import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import React, {Component} from 'react';
+import {View, Text, StatusBar} from 'react-native';
+import { colors } from '../../../constants/themeContants';
 
-export default class StatusBar extends Component {
+export default class CustomStatusBar extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-    };
+    this.state = {};
   }
 
   render() {
     return (
-      <View>
-        <Text> index </Text>
-      </View>
+        <StatusBar
+          {...this.props}
+          translucent={false}
+          backgroundColor={colors.secondaryColor}
+          barStyle="dark-content"
+        />
     );
   }
 }
