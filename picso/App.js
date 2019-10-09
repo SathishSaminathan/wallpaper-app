@@ -60,8 +60,24 @@ class App extends Component {
     });
   }
 
+  checkForUpdates = () => {
+    ToastAndroid.showWithGravityAndOffset(
+      'App is uptodate!',
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM,
+      25,
+      50,
+    );
+  };
+
   componentDidMount() {
-    this.fetchImages();
+    let promise = new Promise(resolve => {
+      this.checkForUpdates();
+      resolve();
+    });
+    promise.then(() => {
+      this.fetchImages();
+    });
   }
 
   fetchImages = () => {
