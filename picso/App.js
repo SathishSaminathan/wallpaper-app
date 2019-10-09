@@ -25,6 +25,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import RNFetchBlob from 'react-native-fetch-blob';
 import CameraRoll from '@react-native-community/cameraroll';
 import Share from 'react-native-share';
+import SplashScreen from 'react-native-splash-screen'
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import CustomStatusBar from './app/components/_shared/statusbar';
@@ -76,6 +77,7 @@ class App extends Component {
       resolve();
     });
     promise.then(() => {
+      SplashScreen.hide();
       this.fetchImages();
     });
   }

@@ -40,6 +40,8 @@ target 'picso' do
 
   pod 'RNShare', :path => '../node_modules/react-native-share'
 
+  pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
+
   target 'picsoTests' do
     inherit! :search_paths
     # Pods for testing
