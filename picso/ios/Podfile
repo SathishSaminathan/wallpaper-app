@@ -38,6 +38,8 @@ target 'picso' do
 
   pod 'react-native-cameraroll', :path => '../node_modules/@react-native-community/cameraroll'
 
+  pod 'RNShare', :path => '../node_modules/react-native-share'
+
   target 'picsoTests' do
     inherit! :search_paths
     # Pods for testing

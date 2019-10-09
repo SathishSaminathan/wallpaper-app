@@ -13,7 +13,6 @@ import {
   FlatList,
   View,
   ActivityIndicator,
-  Image,
   Dimensions,
   Animated,
   TouchableWithoutFeedback,
@@ -25,6 +24,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import RNFetchBlob from 'react-native-fetch-blob';
 import CameraRoll from '@react-native-community/cameraroll';
+import Share from 'react-native-share';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import CustomStatusBar from './app/components/_shared/statusbar';
@@ -51,7 +51,7 @@ class App extends Component {
 
     this.actionBarY = this.state.scale.interpolate({
       inputRange: [0.9, 1],
-      outputRange: [0, -80],
+      outputRange: [0, -100],
     });
 
     this.borderRadius = this.state.scale.interpolate({
@@ -157,6 +157,15 @@ class App extends Component {
     }
   };
 
+  shareImage = image => {
+    const shareOptions = {
+      title: 'Checkout the Image',
+      message: 'Picso Image',
+      url: image.urls.full,
+    };
+    Share.open(shareOptions);
+  };
+
   renderItem = ({item}) => (
     <View style={{flex: 1}}>
       <View
@@ -195,6 +204,7 @@ class App extends Component {
           left: 0,
           right: 0,
           height: 80,
+          borderRadius: this.borderRadius,
           backgroundColor: colors.secondaryColor,
         }}>
         <View style={styles.actionBarArea}>
@@ -204,7 +214,10 @@ class App extends Component {
             onPress={this.fetchImages}>
             <Ionicons style={styles.icons} name="ios-refresh" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBarArea} activeOpacity={0.5}>
+          <TouchableOpacity
+            style={styles.actionBarArea}
+            activeOpacity={0.5}
+            onPress={() => this.shareImage(item)}>
             <Ionicons style={styles.icons} name="ios-share" />
           </TouchableOpacity>
           <TouchableOpacity
@@ -222,7 +235,12 @@ class App extends Component {
     const {isLoading, images, isImageFocused} = this.state;
     return (
       <SafeAreaView style={{backgroundColor: colors.primaryColor, flex: 1}}>
-        <CustomStatusBar></CustomStatusBar>
+        <CustomStatusBar
+          backgroundColor={
+            isImageFocused ? colors.secondaryColor : colors.transparent
+          }
+          hidden={!isImageFocused}
+        />
         {isLoading ? (
           <View
             style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>

@@ -11,11 +11,16 @@ export default class CustomStatusBar extends Component {
   render() {
     return (
         <StatusBar
+          translucent={true}
+          backgroundColor={this.props.backgroundColor}
           {...this.props}
-          translucent={false}
-          backgroundColor={colors.secondaryColor}
           barStyle="dark-content"
+          animated
         />
     );
   }
 }
+
+CustomStatusBar.defaultProps = {
+  backgroundColor: colors.transparent,
+};
