@@ -18,11 +18,13 @@ import {
   Animated,
   TouchableWithoutFeedback,
   TouchableOpacity,
-  CameraRoll,
   PermissionsAndroid,
+  Platform,
+  ToastAndroid,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import RNFetchBlob from 'react-native-fetch-blob';
+import CameraRoll from '@react-native-community/cameraroll';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import CustomStatusBar from './app/components/_shared/statusbar';
@@ -50,6 +52,11 @@ class App extends Component {
     this.actionBarY = this.state.scale.interpolate({
       inputRange: [0.9, 1],
       outputRange: [0, -80],
+    });
+
+    this.borderRadius = this.state.scale.interpolate({
+      inputRange: [0.9, 1],
+      outputRange: [30, 0],
     });
   }
 
@@ -101,9 +108,9 @@ class App extends Component {
   requestCameraPermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
         {
-          title: 'Cool Photo App Camera Permission',
+          title: 'Picso App requires Camera Permission',
           message:
             'Cool Photo App needs access to your camera ' +
             'so you can take awesome pictures.',
@@ -113,17 +120,41 @@ class App extends Component {
         },
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('You can use the camera');
+        return true;
       } else {
-        console.log('Camera permission denied');
+        return false;
       }
     } catch (err) {
       console.warn(err);
     }
   };
 
-  saveToCameraRoll = () => {
-    this.requestCameraPermission();
+  saveToCameraRoll = image => {
+    const isGranted = this.requestCameraPermission();
+    if (Platform.OS === 'android') {
+      RNFetchBlob.config({
+        fileCache: true,
+        appendExt: 'jpg',
+      })
+        .fetch('GET', image.urls.full)
+        .then(res => {
+          CameraRoll.saveToCameraRoll(res.path())
+            .then(() => {
+              ToastAndroid.showWithGravityAndOffset(
+                'Image added to Gallery!',
+                ToastAndroid.SHORT,
+                ToastAndroid.BOTTOM,
+                25,
+                50,
+              );
+            })
+            .catch(err => console.log('err:', err));
+        });
+    } else {
+      CameraRoll.saveToCameraRoll(image.urls.small).then(
+        Alert.alert('Success', 'Photo added to camera roll!'),
+      );
+    }
   };
 
   renderItem = ({item}) => (
@@ -145,8 +176,13 @@ class App extends Component {
       </View>
       <TouchableWithoutFeedback onPress={() => this.showControls(item)}>
         <Animated.View style={[{height, width}, this.scale]}>
-          <Image
-            style={{flex: 1, height: null, width: null}}
+          <Animated.Image
+            style={{
+              flex: 1,
+              height: null,
+              width: null,
+              borderRadius: this.borderRadius,
+            }}
             source={{uri: item.urls.regular}}
             resizeMode="cover"
           />
@@ -174,7 +210,7 @@ class App extends Component {
           <TouchableOpacity
             style={styles.actionBarArea}
             activeOpacity={0.5}
-            onPress={this.saveToCameraRoll}>
+            onPress={() => this.saveToCameraRoll(item)}>
             <Ionicons style={styles.icons} name="ios-save" />
           </TouchableOpacity>
         </View>
