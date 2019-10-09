@@ -17,7 +17,12 @@ import {
   Dimensions,
   Animated,
   TouchableWithoutFeedback,
+  TouchableOpacity,
+  CameraRoll,
+  PermissionsAndroid,
 } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import RNFetchBlob from 'react-native-fetch-blob';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import CustomStatusBar from './app/components/_shared/statusbar';
@@ -44,8 +49,8 @@ class App extends Component {
 
     this.actionBarY = this.state.scale.interpolate({
       inputRange: [0.9, 1],
-      outputRange: [0, -80]
-    })
+      outputRange: [0, -80],
+    });
   }
 
   componentDidMount() {
@@ -62,10 +67,15 @@ class App extends Component {
             isLoading: false,
             images: res.data,
           },
-          () => console.log(res),
+          () => {
+            console.log(res);
+          },
         );
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        alert(err);
+      });
   };
 
   showControls = item => {
@@ -86,6 +96,34 @@ class App extends Component {
         }
       },
     );
+  };
+
+  requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'Cool Photo App Camera Permission',
+          message:
+            'Cool Photo App needs access to your camera ' +
+            'so you can take awesome pictures.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can use the camera');
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  saveToCameraRoll = () => {
+    this.requestCameraPermission();
   };
 
   renderItem = ({item}) => (
@@ -121,8 +159,26 @@ class App extends Component {
           left: 0,
           right: 0,
           height: 80,
-          backgroundColor: colors.secondaryColor
-        }}></Animated.View>
+          backgroundColor: colors.secondaryColor,
+        }}>
+        <View style={styles.actionBarArea}>
+          <TouchableOpacity
+            style={styles.actionBarArea}
+            activeOpacity={0.5}
+            onPress={this.fetchImages}>
+            <Ionicons style={styles.icons} name="ios-refresh" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionBarArea} activeOpacity={0.5}>
+            <Ionicons style={styles.icons} name="ios-share" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionBarArea}
+            activeOpacity={0.5}
+            onPress={this.saveToCameraRoll}>
+            <Ionicons style={styles.icons} name="ios-save" />
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
     </View>
   );
 
@@ -156,38 +212,14 @@ const styles = StyleSheet.create({
   scrollView: {
     backgroundColor: Colors.lighter,
   },
-  engine: {
-    position: 'absolute',
-    right: 0,
+  actionBarArea: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+  icons: {
+    fontSize: 30,
   },
 });
 
