@@ -25,7 +25,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import RNFetchBlob from 'react-native-fetch-blob';
 import CameraRoll from '@react-native-community/cameraroll';
 import Share from 'react-native-share';
-import SplashScreen from 'react-native-splash-screen'
+import SplashScreen from 'react-native-splash-screen';
+import WallPaperManager from '@ajaybhatia/react-native-wallpaper-manager';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import CustomStatusBar from './app/components/_shared/statusbar';
@@ -72,14 +73,16 @@ class App extends Component {
   };
 
   componentDidMount() {
-    let promise = new Promise(resolve => {
-      this.checkForUpdates();
-      resolve();
-    });
-    promise.then(() => {
-      SplashScreen.hide();
-      this.fetchImages();
-    });
+    setTimeout(() => {
+      let promise = new Promise(resolve => {
+        this.checkForUpdates();
+        resolve();
+      });
+      promise.then(() => {
+        SplashScreen.hide();
+        this.fetchImages();
+      });
+    }, 2000);
   }
 
   fetchImages = () => {
@@ -138,8 +141,22 @@ class App extends Component {
         },
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        ToastAndroid.showWithGravityAndOffset(
+          'Your Image is downloading...',
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM,
+          25,
+          50,
+        );
         return true;
       } else {
+        ToastAndroid.showWithGravityAndOffset(
+          'Please grant permission to save the images...',
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM,
+          25,
+          50,
+        );
         return false;
       }
     } catch (err) {
@@ -175,6 +192,18 @@ class App extends Component {
     }
   };
 
+  setWallPaper = image => {
+    WallPaperManager.setWallpaper({uri: image.urls.full, screen: 'lock'}, res =>
+      ToastAndroid.showWithGravityAndOffset(
+        'Wallpaper Changed',
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM,
+        25,
+        50,
+      ),
+    );
+  };
+
   shareImage = image => {
     const shareOptions = {
       title: 'Checkout the Image',
@@ -197,9 +226,7 @@ class App extends Component {
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-        <ActivityIndicator
-          size="large"
-          color={colors.secondaryColor}></ActivityIndicator>
+        <ActivityIndicator size="large" color={colors.secondaryColor} />
       </View>
       <TouchableWithoutFeedback onPress={() => this.showControls(item)}>
         <Animated.View style={[{height, width}, this.scale]}>
@@ -241,6 +268,12 @@ class App extends Component {
           <TouchableOpacity
             style={styles.actionBarArea}
             activeOpacity={0.5}
+            onPress={() => this.setWallPaper(item)}>
+            <Ionicons style={styles.icons} name="ios-settings" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionBarArea}
+            activeOpacity={0.5}
             onPress={() => this.saveToCameraRoll(item)}>
             <Ionicons style={styles.icons} name="ios-save" />
           </TouchableOpacity>
@@ -272,7 +305,8 @@ class App extends Component {
               pagingEnabled
               data={images}
               keyExtractor={item => item.id}
-              renderItem={this.renderItem}></FlatList>
+              renderItem={this.renderItem}
+            />
           </View>
         )}
       </SafeAreaView>
