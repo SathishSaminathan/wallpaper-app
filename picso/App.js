@@ -37,6 +37,7 @@ import {colors, type} from './app/constants/themeContants';
 import CustomText from './app/components/_shared/customtext';
 import Axios from 'axios';
 import {UNPLASH_ACCESS_KEY} from './app/constants/appContants';
+import Secure from './Secure';
 
 const {width, height} = Dimensions.get('window');
 
@@ -298,7 +299,8 @@ class App extends Component {
   render() {
     const {isLoading, images, isImageFocused, visible, image} = this.state;
     return (
-      <SafeAreaView style={{backgroundColor: colors.primaryColor, flex: 1}}>
+      <>
+        {/* <SafeAreaView style={{backgroundColor: colors.primaryColor, flex: 1}}>
         <Dialog
           dialogStyle={{
             backgroundColor: colors.transparent,
@@ -341,20 +343,6 @@ class App extends Component {
                 Set as Lock screen
               </Text>
             </TouchableOpacity>
-            {/* <TouchableOpacity
-              onPress={() => this.setWallPaper(image, 'both')}
-              style={{
-                width: '100%',
-                paddingVertical: 5,
-                paddingHorizontal: 10,
-                backgroundColor: colors.primaryColor,
-                borderRadius: 50,
-                marginTop: 10,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Text style={{color: colors.secondaryColor}}>Set for Both</Text>
-            </TouchableOpacity> */}
           </DialogContent>
         </Dialog>
         <CustomStatusBar
@@ -380,7 +368,9 @@ class App extends Component {
             />
           </View>
         )}
-      </SafeAreaView>
+      </SafeAreaView> */}
+        <Secure />
+      </>
     );
   }
 }
