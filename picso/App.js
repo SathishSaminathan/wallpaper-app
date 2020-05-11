@@ -20,6 +20,8 @@ import {
   PermissionsAndroid,
   Platform,
   ToastAndroid,
+  Button,
+  Text,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -27,6 +29,7 @@ import CameraRoll from '@react-native-community/cameraroll';
 import Share from 'react-native-share';
 import SplashScreen from 'react-native-splash-screen';
 import WallPaperManager from '@ajaybhatia/react-native-wallpaper-manager';
+import Dialog, {DialogContent, SlideAnimation} from 'react-native-popup-dialog';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import CustomStatusBar from './app/components/_shared/statusbar';
@@ -45,6 +48,8 @@ class App extends Component {
       images: [],
       isImageFocused: false,
       scale: new Animated.Value(1),
+      visible: false,
+      image: null,
     };
 
     this.scale = {
@@ -63,26 +68,30 @@ class App extends Component {
   }
 
   checkForUpdates = () => {
-    ToastAndroid.showWithGravityAndOffset(
-      'App is uptodate!',
-      ToastAndroid.SHORT,
-      ToastAndroid.BOTTOM,
-      25,
-      50,
-    );
+    // ToastAndroid.showWithGravityAndOffset(
+    //   'App is uptodate!',
+    //   ToastAndroid.SHORT,
+    //   ToastAndroid.BOTTOM,
+    //   25,
+    //   50,
+    // );
   };
 
   componentDidMount() {
+    // setTimeout(() => {
+    //   let promise = new Promise(resolve => {
+    //     this.checkForUpdates();
+    //     resolve();
+    //   });
+    //   promise.then(() => {
+    //     SplashScreen.hide();
+    //     this.fetchImages();
+    //   });
+    // }, 2000);
     setTimeout(() => {
-      let promise = new Promise(resolve => {
-        this.checkForUpdates();
-        resolve();
-      });
-      promise.then(() => {
-        SplashScreen.hide();
-        this.fetchImages();
-      });
-    }, 2000);
+      SplashScreen.hide();
+    }, 1000);
+    this.fetchImages();
   }
 
   fetchImages = () => {
@@ -96,7 +105,7 @@ class App extends Component {
             images: res.data,
           },
           () => {
-            console.log(res);
+            // console.log(res);
           },
         );
       })
@@ -192,16 +201,20 @@ class App extends Component {
     }
   };
 
-  setWallPaper = image => {
-    WallPaperManager.setWallpaper({uri: image.urls.full, screen: 'lock'}, res =>
+  setWallPaper = (image, screen) => {
+    WallPaperManager.setWallpaper({uri: image.urls.full, screen}, res => {
       ToastAndroid.showWithGravityAndOffset(
-        'Wallpaper Changed',
+        screen === 'lock'
+          ? 'Lock screen changed'
+          : screen === 'both'
+          ? 'Wallpaper and Lock Screen changed'
+          : 'Wallpaper changed',
         ToastAndroid.SHORT,
         ToastAndroid.BOTTOM,
         25,
         50,
-      ),
-    );
+      );
+    });
   };
 
   shareImage = image => {
@@ -268,7 +281,7 @@ class App extends Component {
           <TouchableOpacity
             style={styles.actionBarArea}
             activeOpacity={0.5}
-            onPress={() => this.setWallPaper(item)}>
+            onPress={() => this.setState({visible: true, image: item})}>
             <Ionicons style={styles.icons} name="ios-settings" />
           </TouchableOpacity>
           <TouchableOpacity
@@ -283,9 +296,67 @@ class App extends Component {
   );
 
   render() {
-    const {isLoading, images, isImageFocused} = this.state;
+    const {isLoading, images, isImageFocused, visible, image} = this.state;
     return (
       <SafeAreaView style={{backgroundColor: colors.primaryColor, flex: 1}}>
+        <Dialog
+          dialogStyle={{
+            backgroundColor: colors.transparent,
+          }}
+          onTouchOutside={() =>
+            this.setState({
+              visible: false,
+              image: null,
+            })
+          }
+          visible={visible}
+          dialogAnimation={
+            new SlideAnimation({
+              slideFrom: 'bottom',
+            })
+          }>
+          <DialogContent>
+            <TouchableOpacity
+              onPress={() => this.setWallPaper(image, 'home')}
+              style={{
+                width: '100%',
+                paddingVertical: 5,
+                paddingHorizontal: 10,
+                backgroundColor: colors.secondaryColor,
+                borderRadius: 50,
+              }}>
+              <Text style={{color: colors.primaryColor}}>Set as Wallpaper</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => this.setWallPaper(image, 'lock')}
+              style={{
+                width: '100%',
+                paddingVertical: 5,
+                paddingHorizontal: 10,
+                backgroundColor: colors.primaryColor,
+                borderRadius: 50,
+                marginTop: 10,
+              }}>
+              <Text style={{color: colors.secondaryColor}}>
+                Set as Lock screen
+              </Text>
+            </TouchableOpacity>
+            {/* <TouchableOpacity
+              onPress={() => this.setWallPaper(image, 'both')}
+              style={{
+                width: '100%',
+                paddingVertical: 5,
+                paddingHorizontal: 10,
+                backgroundColor: colors.primaryColor,
+                borderRadius: 50,
+                marginTop: 10,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{color: colors.secondaryColor}}>Set for Both</Text>
+            </TouchableOpacity> */}
+          </DialogContent>
+        </Dialog>
         <CustomStatusBar
           backgroundColor={
             isImageFocused ? colors.secondaryColor : colors.transparent
